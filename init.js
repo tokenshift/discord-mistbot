@@ -31,7 +31,7 @@ function parseCharacterWitsList({ arguments }) {
  * Display the current initiative order.
  */
 async function show (args) {
-  let status = await getInitiative(args)
+  let status = await getInitiative(args.message.channel.id)
 
   if (status == null) {
     args.message.reply('use `mb init start` to start tracking initiative.')
@@ -89,8 +89,8 @@ function sortByPoolOrWits(characters) {
   }
 }
 
-async function getInitiative ({ message }) {
-  let record = await db.findOne({ channelId: message.channel.id })
+async function getInitiative (channelId) {
+  let record = await db.findOne({ channelId: channelId })
   return record
 }
 
@@ -102,7 +102,7 @@ async function start (args) {
   }
 
   // Check if initiative is already being tracked.
-  let status = await getInitiative(args)
+  let status = await getInitiative(args.message.channel.id)
   if (status != null) {
     args.message.reply("I'm already tracking initiative in this channel! Use `mb init stop|end` to stop.")
     return
@@ -142,7 +142,7 @@ async function join (args) {
     // Add message author with provided wits score.
     // TODO: Check if they're already listed.
     if (/^\d+$/.test(arguments[0])) {
-      status = await getInitiative(args)
+      status = await getInitiative(args.message.channel.id)
       status.characters.push({
         name: message.author.toString(),
         wits: Number(arguments[0])
@@ -156,7 +156,7 @@ async function join (args) {
     let newChars = parseCharacterWitsList(args)
 
     if (newChars) {
-      status = await getInitiative(args)
+      status = await getInitiative(args.message.channel.id)
       status.characters = status.characters.concat(newChars)
     } else {
       message.reply(join.shortHelp)
@@ -176,8 +176,20 @@ async function join (args) {
 }
 
 async function stop ({ message }) {
-  // TODO: Also remove initiative tracking message--once I've started updating
-  // that rather than continually posting a new one.
+  let status = await getInitiative(message.channel.id)
+  if (!status) {
+    message.reply('initiative is not currently being tracked.')
+    return
+  }
+
+  if (status.initiativeMessageId) {
+    // Delete the old initiative message.
+    let oldMessage = await message.channel.messages.fetch(status.initiativeMessageId)
+    if (oldMessage) {
+      oldMessage.delete()
+    }
+  }
+
   await db.remove({ channelId: message.channel.id })
   message.reply('ended initiative tracking.')
 }
