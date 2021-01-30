@@ -1,0 +1,118 @@
+Mistborn has 3 types of rolls: Challenges, Contests, and Conflicts.
+All use a pool of d6's.
+
+Challenges use only the basic rules.
+First, narrator selects appropriate Attribute, Standing or Power.
+You get as many dice as that rating.
+Then add a die for every supporting trait.
+Add one if you have a tool; -1 for the opposite.
+Favorable conditions: +1 adverse conditions: -1
+Max die pool size: 10; free nudge for each die beyond 10.
+Min die pool size: 2
+If die pool is smaller than that, roll 2, and outcome worsens by 1 for each die below 2 (p.144).
+
+Once pool is formed, Narrator declares a difficulty (rating from 1-5).
+1 - Simple
+2 - Challenging
+3 - Difficult
+4 - Very Hard
+5 - Nearly Impossible
+
+"Wits 3" means a Wits roll with a Difficulty of 3.
+
+Roll all the dice in your pool. Highest match (not counting 6's) is the result. You need to match or beat the difficulty to succeed.
+
+6's are "nudges"
+Outcomes are roll result - difficulty.
+
+6  - Godlike
+5  - Legendary
+4  - Astounding
+3  - Amazing
+2  - Excellent
+1  - Good
+0  - Passable
+-1 - Just shy
+-2 - Unfortunate
+-3 - Cringe-worthy
+-4 - Horrible
+-5 - Disastrous
+-6 - Catastrophic
+
+## Contests
+
+Both characters declare actions, form pools, and roll dice as usual. Character with the highest numbered set wins the contest.
+If tied, most nudges. If still tied, stalemate.
+
+## Conflicts
+
+Step 1: Declare actions and determine available dice
+Everyone does this; Narrator for NPCs, players all for themselves.
+Start with character w/ lowest Wits.
+If surprised, declare actions first (declaring actions _last_ is better).
+As each action is declared, Narrator decides on dice to roll, just like normal
+rolls. These are now called "Action Dice", and don't yet count as a dice pool.
+(p.176)
+Or, you can commit to defending yourself, and get Defense Dice.
+
+Narrator decides if each action is a Challenge (unopposed) or Contest (opposed).
+
+Step 2: Resolve actions
+Start with the character w/ the most Action Dice.
+Player forms a pool selected from the available Action Dice. The rest can then
+be used as Defense Dice.
+
+Alternately, the player can declare a new action; form a new set of Action Dice and half (rounding up), then they go at the end of the round.
+
+Or, choose not to act, and all Action Dice become Defense Dice.
+
+You can spend 2-10 Action Dice and Defense Dice at a time.
+Each use depletes the pool--e.g. if you're attacked multiple times in a round.
+(You can use Action Dice to defend, if you're attacked before your turn.)
+
+## Commands
+
+`mb init`
+Display the current initiative.
+
+`mb init start {character name} {wit} [more character+wit pairs...]`
+Start tracking intitiative.
+Can optionally list all the characters now, or add them later (see `mb init join`).
+List PCs by @Mentions to tie to their pool declarations, later.
+Will place characters in order by their Wit score.
+
+`mb init join {character name} {wit} [more character+wit pairs...]`
+Add characters to initiative after it starts. Will place characters in order by
+their Wit score.
+
+`mb init join {wit}`
+Add one's own handle to initiative with the given wit score.
+
+`mb init remove|rm` {character names...}`
+Remove characters from initiative order. Can specify by name or order.
+
+`mb init move|mv {character name} {new order}`
+Moves a character to a new position in the initiative order (regardless of Wit
+or pool size).
+
+`mb init clear`
+Remove all characters from initiative tracking.
+
+`mb init pool [character] {pool size}`
+Declare the size of your own pool (presumably w/ discussion w/ the Narrator),
+or optionally for another character (though only the Narrator should probably
+use this).
+
+`mb init spend {count} [character]`
+Spend {count} of your own die pool, or the identified `[character]`'s pool.
+Will automatically roll that many dice for you.
+
+`mb init reset`
+Reset initiative tracking; return everybody to Wit order, and clear their pools.
+
+`mb init stop|end`
+End initiative tracking.
+
+`mb roll {count}`
+Roll `{count}` 6-sided die and display the result--the highest pair from 1-5,
+and the number of Nudges (6's).
