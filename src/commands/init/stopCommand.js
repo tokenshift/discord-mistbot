@@ -20,8 +20,8 @@ async function stop ({ message, message: { channel } }) {
   await message.reply('ended initiative tracking.')
 }
 
-stop.shortHelp = 'usage: `mb init stop|end`'
-stop.fullHelp = `> **mb init stop|end**
+stop.shortHelp = 'usage: `mb init stop|end|done`'
+stop.fullHelp = `> **mb init stop|end|done**
 End initiative tracking.`
 
 module.exports = stop

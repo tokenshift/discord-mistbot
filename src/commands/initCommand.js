@@ -14,10 +14,11 @@ const subcommands = {
   sort: require('./init/sortCommand'),
   remove: require('./init/removeCommand'),
   rm: require('./init/removeCommand'),
+  reset: require('./init/resetCommand'),
   clear: require('./init/clearCommand'),
-  reset: require('./init/clearCommand'),
   stop: require('./init/stopCommand'),
-  end: require('./init/stopCommand')
+  end: require('./init/stopCommand'),
+  done: require('./init/stopCommand')
 }
 
 async function help ({message: {channel}}) {
