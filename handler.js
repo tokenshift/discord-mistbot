@@ -33,10 +33,6 @@ async function handler (msg) {
       args: parsed.arguments
     })
 
-    if (process.env.DEBUG_MODE == 'true') {
-      await msg.reply(`DEBUG command: ${parsed.command} args: [${parsed.arguments.join(', ')}]`)
-    }
-
     cmd(parsed)
   }
   else {

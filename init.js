@@ -1,3 +1,4 @@
+const Channel = require('./Channel')
 const db = require('./db')
 
 /**
@@ -31,16 +32,16 @@ function parseCharacterWitsList({ arguments }) {
  * Display the current initiative order.
  */
 async function show (args) {
-  let status = await getInitiative(args.message.channel.id)
+  let channel = await Channel.find(args.message.channel.id)
 
-  if (status == null) {
+  if (channel == null) {
     args.message.reply('use `mb init start` to start tracking initiative.')
     return
   }
 
   let lines = []
-  for (let i = 0; i < status.characters.length; ++i) {
-    let char = status.characters[i]
+  for (let i = 0; i < channel.characters.length; ++i) {
+    let char = channel.characters[i]
 
     if (char.pool) {
       if (char.remaining != char.pool) {
@@ -53,13 +54,13 @@ async function show (args) {
     }
   }
 
-  if (status.characters.length == 0) {
+  if (channel.characters.length == 0) {
     lines.push('*Use `mp init join {wits score}` to join initiative.*')
   }
 
-  if (status.initiativeMessageId) {
+  if (channel.initiativeMessageId) {
     // Delete the old initiative message.
-    let oldMessage = await args.message.channel.messages.fetch(status.initiativeMessageId)
+    let oldMessage = await args.message.channel.messages.fetch(channel.initiativeMessageId)
     if (oldMessage) {
       oldMessage.delete()
     }
@@ -83,15 +84,10 @@ async function show (args) {
  */
 function sortByPoolOrWits(characters) {
   if (characters.some(c => c.pool == null)) {
-    characters.sort((a, b) => b.wits - a.wits)
+    characters.sort((a, b) => a.wits - b.wits)
   } else {
     characters.sort((a, b) => b.pool - a.pool)
   }
-}
-
-async function getInitiative (channelId) {
-  let record = await db.findOne({ channelId: channelId })
-  return record
 }
 
 async function start (args) {
@@ -102,8 +98,8 @@ async function start (args) {
   }
 
   // Check if initiative is already being tracked.
-  let status = await getInitiative(args.message.channel.id)
-  if (status != null) {
+  let channel = await Channel.find(args.message.channel.id)
+  if (channel != null) {
     args.message.reply("I'm already tracking initiative in this channel! Use `mb init stop|end` to stop.")
     return
   }
@@ -132,7 +128,7 @@ Add a list of character + Wits pairs to initiative.`
 async function join (args) {
   let { arguments, message } = args
 
-  let status
+  let channel
 
   if (arguments.length == 0) {
     message.reply(join.shortHelp)
@@ -142,8 +138,8 @@ async function join (args) {
     // Add message author with provided wits score.
     // TODO: Check if they're already listed.
     if (/^\d+$/.test(arguments[0])) {
-      status = await getInitiative(args.message.channel.id)
-      status.characters.push({
+      channel = await Channel.find(args.message.channel.id)
+      channel.characters.push({
         name: message.author.toString(),
         wits: Number(arguments[0])
       })
@@ -156,19 +152,19 @@ async function join (args) {
     let newChars = parseCharacterWitsList(args)
 
     if (newChars) {
-      status = await getInitiative(args.message.channel.id)
-      status.characters = status.characters.concat(newChars)
+      channel = await Channel.find(args.message.channel.id)
+      channel.characters = channel.characters.concat(newChars)
     } else {
       message.reply(join.shortHelp)
       return
     }
   }
 
-  sortByPoolOrWits(status.characters)
+  sortByPoolOrWits(channel.characters)
 
   db.update({ channelId: message.channel.id }, {
     $set: {
-      characters: status.characters
+      characters: channel.characters
     }
   })
 
@@ -176,15 +172,15 @@ async function join (args) {
 }
 
 async function stop ({ message }) {
-  let status = await getInitiative(message.channel.id)
-  if (!status) {
+  let channel = await Channel.find(args.message.channel.id)
+  if (!channel) {
     message.reply('initiative is not currently being tracked.')
     return
   }
 
-  if (status.initiativeMessageId) {
+  if (channel.initiativeMessageId) {
     // Delete the old initiative message.
-    let oldMessage = await message.channel.messages.fetch(status.initiativeMessageId)
+    let oldMessage = await message.channel.messages.fetch(channel.initiativeMessageId)
     if (oldMessage) {
       oldMessage.delete()
     }
