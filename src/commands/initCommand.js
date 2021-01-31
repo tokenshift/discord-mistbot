@@ -10,10 +10,12 @@ const subcommands = {
   mv: require('./init/moveCommand'),
   update: require('./init/updateCommand'),
   pool: require('./init/poolCommand'),
+  spend: require('./init/spendCommand'),
   sort: require('./init/sortCommand'),
   remove: require('./init/removeCommand'),
   rm: require('./init/removeCommand'),
   clear: require('./init/clearCommand'),
+  reset: require('./init/clearCommand'),
   stop: require('./init/stopCommand'),
   end: require('./init/stopCommand')
 }
@@ -50,11 +52,5 @@ init.shortHelp = 'usage: `mb init [subcommand]`'
 init.fullHelp = [...new Set(Object.values(subcommands))]
   .map(c => c.fullHelp)
   .join('\n\n')
-
-/* Pending commands:
-
-\`mb init spend [character] {count}\`
-Spend {count} dice out of your own die pool, or the identified [character]'s pool. Will automatically roll that many dice for you.
-*/
 
 module.exports = init
