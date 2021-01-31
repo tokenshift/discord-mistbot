@@ -1,22 +1,9 @@
 const { parse } = require('discord-command-parser')
 
-const init = require('./init')
 const log = require('./log')
-const roll = require('./roll')
-
-function help ({message: {channel}}) {
-  channel.send({embed: {
-    title: 'Mistbot Help',
-    description: `\`mb help\`
-Display this help text.
-
-\`mb roll {pool}\`
-Roll a pool of dice, Mistborn style.
-
-\`mb init [subcommand]\`
-Mistbot initiative tracking. See \`mb init help\` for more details.`
-  }})
-}
+const help = require('./commands/helpCommand')
+const init = require('./commands/initCommand')
+const roll = require('./commands/rollCommand')
 
 const commands = {
   help,
