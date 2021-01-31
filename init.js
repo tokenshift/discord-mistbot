@@ -250,6 +250,9 @@ Remove characters from initiative order. Can specify characters to remove by nam
 \`mb init move|mv {character name} {new order}\`
 Move a character to a new position in the initiative order (regardless of Wits or pool size).
 
+\`mb init update {character} {wits}\`
+Modify the Wits score of a character already in the initiative list.
+
 \`mb init clear\`
 Remove all characters from initiative tracking.
 
