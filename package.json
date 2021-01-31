@@ -7,6 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Nathan Clark <nathan.clark@tokenshift.com>",
+  "repository": "https://github.com/tokenshift/discord-mistbot",
   "license": "ISC",
   "dependencies": {
     "bufferutil": "^4.0.3",
