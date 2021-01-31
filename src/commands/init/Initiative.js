@@ -23,11 +23,9 @@ class Initiative {
         return null
       }
 
-      wits = Number(wits)
-
       characters.push({
-        name,
-        wits
+        name: name.trim(),
+        wits: Number(wits)
       })
     }
 
@@ -55,6 +53,10 @@ class Initiative {
    * Save the initiative record to the database.
    */
   async save () {
+    for (let char of this.characters) {
+      char.name = char.name.trim()
+    }
+
     await db.update({
       type: 'Initiative',
       channelId: this.channelId
@@ -87,6 +89,63 @@ class Initiative {
     } else {
       this.characters.sort((a, b) => b.pool - a.pool)
     }
+  }
+
+  /**
+   * Move a character to a new position in the initiative order, regardless of
+   * their Wits score or pool size.
+   */
+  move (name, newPosition) {
+    newPosition = Math.max(0, newPosition-1)
+
+    // if (newPosition < 0 || newPosition > this.characters.length) {
+    //   return false
+    // }
+
+    let found = null
+
+    // Remove the character from their current position
+    if (/^\d+$/.test(name)) {
+      // Pick by current order
+      let i = Number(name) - 1
+
+      if (i < 0 || i >= this.characters.length) {
+        return false
+      }
+
+      found = this.characters[i]
+
+      this.characters = [
+        ...this.characters.slice(0, i),
+        ...this.characters.slice(i+1)
+      ]
+    } else {
+      // Pick by name.
+      let found = false
+
+      for (let i = 0; !found && i < this.characters.length; ++i) {
+        if (this.characters.name == name) {
+          found = this.characters[i]
+          this.characters = [
+            ...this.characters.slice(0, i),
+            ...this.characters.slice(i+1)
+          ]
+        }
+      }
+    }
+
+    if (!found) {
+      return false
+    }
+
+    // Add the character back in their new position.
+    this.characters = [
+      ...this.characters.slice(0, newPosition),
+      found,
+      ...this.characters.slice(newPosition)
+    ]
+
+    return true
   }
 }
 

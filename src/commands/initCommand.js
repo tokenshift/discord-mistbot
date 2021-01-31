@@ -6,6 +6,8 @@ const subcommands = {
   show: require('./init/showCommand'),
   start: require('./init/startCommand'),
   join: require('./init/joinCommand'),
+  move: require('./init/moveCommand'),
+  mv: require('./init/moveCommand'),
   clear: require('./init/clearCommand'),
   stop: require('./init/stopCommand'),
   end: require('./init/stopCommand')
