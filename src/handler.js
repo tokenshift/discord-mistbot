@@ -4,6 +4,7 @@ const log = require('./log')
 
 const commands = {
   help,
+  version: require('./commands/versionCommand'),
   roll: require('./commands/rollCommand'),
   init: require('./commands/initCommand')
 }
