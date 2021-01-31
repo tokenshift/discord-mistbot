@@ -98,10 +98,6 @@ class Initiative {
   move (name, newPosition) {
     newPosition = Math.max(0, newPosition-1)
 
-    // if (newPosition < 0 || newPosition > this.characters.length) {
-    //   return false
-    // }
-
     let found = null
 
     // Remove the character from their current position
@@ -121,10 +117,8 @@ class Initiative {
       ]
     } else {
       // Pick by name.
-      let found = false
-
       for (let i = 0; !found && i < this.characters.length; ++i) {
-        if (this.characters.name == name) {
+        if (this.characters[i].name == name) {
           found = this.characters[i]
           this.characters = [
             ...this.characters.slice(0, i),
@@ -146,6 +140,68 @@ class Initiative {
     ]
 
     return true
+  }
+
+  /**
+   * Update an existing character's Wits score.
+   */
+  update (name, newWits) {
+    if (/^\d+$/.test(name)) {
+      // Pick by current order
+      let i = Number(name) - 1
+
+      if (i < 0 || i >= this.characters.length) {
+        return false
+      }
+
+      this.characters[i].wits = newWits
+      return true
+    } else {
+      // Pick by name.
+      for (let char of this.characters) {
+        if (char.name == name) {
+          char.wits = newWits
+          return true
+        }
+      }
+    }
+
+    return false
+  }
+
+  /**
+   * Remove a character from the initiative list.
+   */
+  remove (name) {
+    if (/^\d+$/.test(name)) {
+      // Pick by current order
+      let i = Number(name) - 1
+
+      if (i < 0 || i >= this.characters.length) {
+        return false
+      }
+
+      this.characters = [
+        ...this.characters.slice(0, i),
+        ...this.characters.slice(i+1)
+      ]
+
+      return true
+    } else {
+      // Pick by name.
+      for (let i = 0; i < this.characters.length; ++i) {
+        if (this.characters[i].name == name) {
+          this.characters = [
+            ...this.characters.slice(0, i),
+            ...this.characters.slice(i+1)
+          ]
+
+          return true
+        }
+      }
+    }
+
+    return false
   }
 }
 

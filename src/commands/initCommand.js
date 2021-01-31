@@ -8,6 +8,10 @@ const subcommands = {
   join: require('./init/joinCommand'),
   move: require('./init/moveCommand'),
   mv: require('./init/moveCommand'),
+  update: require('./init/updateCommand'),
+  sort: require('./init/sortCommand'),
+  remove: require('./init/removeCommand'),
+  rm: require('./init/removeCommand'),
   clear: require('./init/clearCommand'),
   stop: require('./init/stopCommand'),
   end: require('./init/stopCommand')
@@ -47,15 +51,6 @@ init.fullHelp = [...new Set(Object.values(subcommands))]
   .join('\n\n')
 
 /* Pending commands:
-
-\`mb init move|mv {character name} {new order}\`
-Move a character to a new position in the initiative order (regardless of Wits or pool size).
-
-\`mb init update {character} {wits}\`
-Modify the Wits score of a character already in the initiative list.
-
-\`mb init remove|rm {character names...}\`
-Remove characters from initiative order. Can specify characters to remove by name or initiative order.
 
 \`mb init pool [character] {pool size}\`
 Declare the size of your own pool, or the size of another character's pool.
