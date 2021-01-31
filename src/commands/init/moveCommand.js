@@ -19,7 +19,7 @@ async function move(context) {
   }
 
   for (let {name, wits} of updates) {
-    if (!init.move(name, wits)) {
+    if (!init.update(name, c => c.order = wits)) {
       await message.reply(move.shortHelp)
       return
     }

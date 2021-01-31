@@ -9,6 +9,7 @@ const subcommands = {
   move: require('./init/moveCommand'),
   mv: require('./init/moveCommand'),
   update: require('./init/updateCommand'),
+  pool: require('./init/poolCommand'),
   sort: require('./init/sortCommand'),
   remove: require('./init/removeCommand'),
   rm: require('./init/removeCommand'),
@@ -51,9 +52,6 @@ init.fullHelp = [...new Set(Object.values(subcommands))]
   .join('\n\n')
 
 /* Pending commands:
-
-\`mb init pool [character] {pool size}\`
-Declare the size of your own pool, or the size of another character's pool.
 
 \`mb init spend [character] {count}\`
 Spend {count} dice out of your own die pool, or the identified [character]'s pool. Will automatically roll that many dice for you.

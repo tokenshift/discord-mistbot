@@ -17,7 +17,7 @@ async function remove(context) {
     return
   }
 
-  if (!init.remove(arguments[0].trim())) {
+  if (!init.update(arguments[0].trim(), c => c.deleted = true)) {
     await message.reply(remove.shortHelp)
     return
   }
@@ -26,8 +26,8 @@ async function remove(context) {
   await show(context)
 }
 
-remove.shortHelp = 'usage: `mb init remove|rm {character names}`'
-remove.fullHelp = `> **mb init remove|rm {character names}**
-Remove characters from initiative order. Can specify characters to remove by name or initiative order.`
+remove.shortHelp = 'usage: `mb init remove|rm {character name}`'
+remove.fullHelp = `> **mb init remove|rm {character name}**
+Remove a character from initiative order. Can specify character to remove by name or initiative order.`
 
 module.exports = remove

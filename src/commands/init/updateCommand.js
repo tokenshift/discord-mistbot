@@ -1,4 +1,3 @@
-
 const show = require('./showCommand')
 const Initiative = require("./Initiative")
 
@@ -20,7 +19,7 @@ async function update(context) {
   }
 
   for (let {name, wits} of updates) {
-    if (!init.update(name, wits)) {
+    if (!init.update(name, c => c.wits = wits)) {
       await message.reply(update.shortHelp)
       return
     }
