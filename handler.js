@@ -4,10 +4,24 @@ const init = require('./init')
 const log = require('./log')
 const roll = require('./roll')
 
-// TODO: Add help command
+function help ({message: {channel}}) {
+  channel.send({embed: {
+    title: 'Mistbot Help',
+    description: `\`mb help\`
+Display this help text.
+
+\`mb roll {pool}\`
+Roll a pool of dice, Mistborn style.
+
+\`mb init [subcommand]\`
+Mistbot initiative tracking. See \`mb init help\` for more details.`
+  }})
+}
+
 const commands = {
-  init,
-  roll
+  help,
+  roll,
+  init
 }
 
 async function handler (msg) {

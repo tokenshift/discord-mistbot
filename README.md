@@ -44,6 +44,7 @@ specified, it adds the message author themselves. Otherwise, it behaves the same
 way as `mb init start`, but adds additional characters to initiative.
 
 Adding yourself with Wits 3: `mb init join 3`
+
 Adding another character: `mb init join "John Smith" 3`
 
 `mb init remove|rm {character names...}`  

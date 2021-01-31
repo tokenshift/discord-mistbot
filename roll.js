@@ -53,14 +53,14 @@ function rollText(result) {
   return parts.join('')
 }
 
-module.exports = function (args) {
-  let count = args.reader.getInt()
+module.exports = function ({reader, message, message: {channel}}) {
+  let count = reader.getInt()
   if (count == null || count < 0) {
-    // TODO: Display help
+    channel.send('usage: `mb roll {pool size}`')
     return
   }
 
   let result = roll(count)
   let text = rollText(result)
-  args.message.channel.send(`${args.message.author} ${text}`)
+  channel.send(`${message.author} ${text}`)
 }
