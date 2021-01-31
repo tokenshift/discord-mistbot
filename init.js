@@ -1,10 +1,11 @@
-const Channel = require('./Channel')
 const db = require('./db')
+
+/* Helper Functions */
 
 /**
  * Parses a list of character + wits pairs from command arguments.
  */
-function parseCharacterWitsList({ arguments }) {
+function parseCharacterWitsList(arguments) {
   let characters = []
 
   for (let i = 0; i < arguments.length; i += 2) {
@@ -29,19 +30,33 @@ function parseCharacterWitsList({ arguments }) {
 }
 
 /**
- * Display the current initiative order.
- */
-async function show (args) {
-  let channel = await Channel.find(args.message.channel.id)
+* Sorts characters _in-place_ by their pool size if they've all declared one,
+* otherwise by their Wits score.
+*/
+function sortCharacters (characters) {
+  if (characters.some(c => c.pool == null)) {
+    characters.sort((a, b) => a.wits - b.wits)
+  } else {
+    characters.sort((a, b) => b.pool - a.pool)
+  }
+}
 
-  if (channel == null) {
-    args.message.reply('use `mb init start` to start tracking initiative.')
+/* Init subcommands */
+
+show.shortHelp = 'usage: `mb [show]`'
+show.fullHelp = `\`mb [show]\`
+Display the current initiative order/`
+async function show ({message, message: {channel}}) {
+  let record = await db.findOne({channelId: channel.id})
+
+  if (record == null) {
+    message.reply('use `mb init start` to start tracking initiative.')
     return
   }
 
   let lines = []
-  for (let i = 0; i < channel.characters.length; ++i) {
-    let char = channel.characters[i]
+  for (let i = 0; i < record.characters.length; ++i) {
+    let char = record.characters[i]
 
     if (char.pool) {
       if (char.remaining != char.pool) {
@@ -54,93 +69,82 @@ async function show (args) {
     }
   }
 
-  if (channel.characters.length == 0) {
-    lines.push('*Use `mp init join {wits score}` to join initiative.*')
+  if (record.characters.length == 0) {
+    lines.push('*Use `mb init join {wits score}` to join initiative.*')
   }
 
-  if (channel.initiativeMessageId) {
+  if (record.initiativeMessageId) {
     // Delete the old initiative message.
-    let oldMessage = await args.message.channel.messages.fetch(channel.initiativeMessageId)
-    if (oldMessage) {
+    try {
+      let oldMessage = await channel.messages.fetch(record.initiativeMessageId)
       oldMessage.delete()
-    }
+    } catch {}
   }
 
-  let sent = await args.message.channel.send({
+  let sent = await channel.send({
     embed: {
       title: 'Mistbot Initiative Tracker',
       description: lines.join('\n')
     }
   })
 
-  db.update({ channelId: args.message.channel.id }, {
-    $set: { initiativeMessageId: sent.id }
-  })
+  record.initiativeMessageId = sent.id
+  await db.update({ _id: record._id }, record)
 }
 
-/**
- * Sorts characters _in-place_ by their pool size if they've all declared one,
- * otherwise by their Wits score.
- */
-function sortByPoolOrWits(characters) {
-  if (characters.some(c => c.pool == null)) {
-    characters.sort((a, b) => a.wits - b.wits)
-  } else {
-    characters.sort((a, b) => b.pool - a.pool)
-  }
-}
+start.shortHelp = 'usage: `mb init start [{character name} {wits score} ...]`'
+start.fullHelp = `\`mb init start [{character name} {wits score} ...]\`
+Start tracking intitiative. Characters can optionally be listed now as pairs of \`{character name} {wits score}\`, or added later using mb init join. Add player characters using @Mentions to tie them to their own commands later (e.g. \`mb init pool\`).
 
-async function start (args) {
-  let characters = parseCharacterWitsList(args)
+Characters will initially be placed in increasing order by Wits. This can be overridden by using \`mb init move|mv\`.
+
+Once everyone has declared their pool size, then characters will be placed in decreasing order by pool size so they can start taking actions using \`mb init spend\`.`
+async function start (context) {
+  let {arguments, message, message: {channel}} = context
+
+  let characters = parseCharacterWitsList(arguments)
   if (characters == null) {
-    args.message.reply('usage: `mb init start [{character name} {wits score} ...]`')
+    message.reply(start.shortHelp)
     return
   }
 
   // Check if initiative is already being tracked.
-  let channel = await Channel.find(args.message.channel.id)
-  if (channel != null) {
-    args.message.reply("I'm already tracking initiative in this channel! Use `mb init stop|end` to stop.")
+  let record = await db.findOne({channelId: channel.id})
+  if (record != null) {
+    message.reply("I'm already tracking initiative in this channel! Use `mb init stop|end` to stop.")
     return
   }
 
-  sortByPoolOrWits(characters)
+  sortCharacters(characters)
 
   await db.insert({
-    channelId: args.message.channel.id,
+    channelId: channel.id,
     characters: characters
   })
 
-  show(args)
+  show(context)
 }
 
-// `mb init join {character name} {wit} [more character+wit pairs...]`
-// Add characters to initiative after it starts. Will place characters in order by
-// their Wit score.
-
-// `mb init join {wit}`
-// Add one's own handle to initiative with the given wit score.
 join.shortHelp = 'usage: `mb init join {wits score}` or `mb init join {character name} {wits score} ...`'
 join.fullHelp = `\`mb init join {wits score}\`
 Add yourself to initiative with the specified Wits score.
 \`mb init join {character name} {wits score} ...\`
 Add a list of character + Wits pairs to initiative.`
-async function join (args) {
-  let { arguments, message } = args
-
-  let channel
+async function join (context) {
+  let {arguments, message, message: {author, channel}} = context
 
   if (arguments.length == 0) {
     message.reply(join.shortHelp)
   }
 
+  let record
+
   if (arguments.length == 1) {
-    // Add message author with provided wits score.
-    // TODO: Check if they're already listed.
+    // Add message author with provided Wits score.
     if (/^\d+$/.test(arguments[0])) {
-      channel = await Channel.find(args.message.channel.id)
-      channel.characters.push({
-        name: message.author.toString(),
+      record = await db.findOne({channelId: channel.id})
+      record.characters.push({
+        name: author.toString(),
         wits: Number(arguments[0])
       })
     } else {
@@ -149,56 +153,59 @@ async function join (args) {
     }
   } else {
     // Add list of character + wits pairs.
-    let newChars = parseCharacterWitsList(args)
+    let newChars = parseCharacterWitsList(arguments)
 
     if (newChars) {
-      channel = await Channel.find(args.message.channel.id)
-      channel.characters = channel.characters.concat(newChars)
+      record = await db.findOne({channelId: channel.id})
+      record.characters = record.characters.concat(newChars)
     } else {
       message.reply(join.shortHelp)
       return
     }
   }
 
-  sortByPoolOrWits(channel.characters)
+  sortCharacters(record.characters)
 
-  db.update({ channelId: message.channel.id }, {
-    $set: {
-      characters: channel.characters
-    }
-  })
+  await db.update({_id: record._id}, record)
 
-  show(args)
+  show(context)
 }
 
-async function stop ({ message }) {
-  let channel = await Channel.find(args.message.channel.id)
-  if (!channel) {
+stop.shortHelp = 'usage: `mb init stop|end`'
+stop.fullHelp = `\`mb init stop|end\`
+End initiative tracking.`
+async function stop ({ message, message: { channel } }) {
+  let record = await db.findOne({ channelId: channel.id })
+  if (!record) {
     message.reply('initiative is not currently being tracked.')
     return
   }
 
-  if (channel.initiativeMessageId) {
+  if (record.initiativeMessageId) {
     // Delete the old initiative message.
-    let oldMessage = await message.channel.messages.fetch(channel.initiativeMessageId)
-    if (oldMessage) {
-      oldMessage.delete()
-    }
+    try {
+      let oldMessage = await channel.messages.fetch(record.initiativeMessageId)
+      await oldMessage.delete()
+    } catch {}
   }
 
-  await db.remove({ channelId: message.channel.id })
+  await db.remove({ channelId: channel.id })
   message.reply('ended initiative tracking.')
 }
 
-async function clear (args) {
-  await db.update({ channelId: args.message.channel.id }, {
+async function clear (context) {
+  let {message: {channel}} = context
+
+  await db.update({ channelId: channel.id }, {
     $set: {
       characters: []
     }
   })
 
-  show(args)
+  show(context)
 }
+
+/* Init command */
 
 const subcommands = {
   show,
@@ -209,7 +216,7 @@ const subcommands = {
   end: stop
 }
 
-module.exports = function (args) {
+function init (context) {
   // Without any subcommand, just display the current initiative, or an error
   // if there's no initiative being tracked right now.
   //
@@ -224,19 +231,21 @@ module.exports = function (args) {
   // spend {count} [character]
   // reset
   // end
-  let { arguments, message } = args
+  // help (show full init help)
+  let { arguments, message } = context
   let subcommand = arguments[0]
 
   if (subcommand) {
     subcommand = subcommands[subcommand]
     if (subcommand) {
-      args.arguments = args.arguments.slice(1)
-      subcommand(args)
+      context.arguments = context.arguments.slice(1)
+      subcommand(context)
     } else {
-      // TODO: Output `init` help
-      message.reply('TODO: output `init` help')
+      message.reply('try `mb init help`.')
     }
   } else {
-    show(args)
+    show(context)
   }
 }
+
+module.exports = init

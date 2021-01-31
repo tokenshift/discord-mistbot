@@ -35,9 +35,6 @@ async function handler (msg) {
 
     cmd(parsed)
   }
-  else {
-    // TODO: Display help text.
-  }
 }
 
 module.exports = handler
