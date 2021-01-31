@@ -1,15 +1,25 @@
 const { parse } = require('discord-command-parser')
 
 const log = require('./log')
-const help = require('./commands/helpCommand')
-const init = require('./commands/initCommand')
-const roll = require('./commands/rollCommand')
 
 const commands = {
   help,
-  roll,
-  init
+  roll: require('./commands/rollCommand'),
+  init: require('./commands/initCommand')
 }
+
+async function help ({message: {channel}}) {
+  channel.send({embed: {
+    title: 'Mistbot Commands',
+    description: Object.values(commands)
+      .map(c => c.fullHelp)
+      .join('\n\n')
+  }})
+}
+
+help.shortHelp = 'usage: `mb help`'
+help.fullHelp = `> **mb help**
+Display this help text.`
 
 async function handler (msg) {
   let parsed = parse(msg, 'mb ', {

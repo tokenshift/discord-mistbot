@@ -1,6 +1,3 @@
-function roll(count) {
-}
-
 function roll(pool) {
   // Pool sizes above 10 or below 2 count as 10 with nudges, or 2 with a
   // worsening outcome.
@@ -53,7 +50,7 @@ function rollText(result) {
   return parts.join('')
 }
 
-module.exports = function ({reader, message, message: {channel}}) {
+function rollCommand ({reader, message, message: {channel}}) {
   let count = reader.getInt()
   if (count == null || count < 0) {
     channel.send('usage: `mb roll {pool size}`')
@@ -64,3 +61,9 @@ module.exports = function ({reader, message, message: {channel}}) {
   let text = rollText(result)
   channel.send(`${message.author} ${text}`)
 }
+
+rollCommand.shortHelp = 'usage: `mb roll {pool size}`'
+rollCommand.fullHelp = `> **mb roll {pool}**
+Roll a pool of dice, Mistborn style.`
+
+module.exports = rollCommand

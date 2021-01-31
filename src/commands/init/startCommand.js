@@ -24,7 +24,7 @@ async function start (context) {
 }
 
 start.shortHelp = 'usage: `mb init start [{character name} {wits score} ...]`'
-start.fullHelp = `\`mb init start [{character name} {wits score} ...]\`
+start.fullHelp = `> **mb init start [{character name} {wits score} ...]**
 Start tracking intitiative. Characters can optionally be listed now as pairs of \`{character name} {wits score}\`, or added later using mb init join. Add player characters using @Mentions to tie them to their own commands later (e.g. \`mb init pool\`).
 
 Characters will initially be placed in increasing order by Wits. This can be overridden by using \`mb init move|mv\`.

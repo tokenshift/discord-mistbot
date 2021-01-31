@@ -16,7 +16,7 @@ async function clear (context) {
 }
 
 clear.shortHelp = 'usage: `mb init clear`'
-clear.fullHelp = `\`mb init clear\`
+clear.fullHelp = `> **mb init clear**
 Remove all characters from initiative tracking.`
 
 module.exports = clear

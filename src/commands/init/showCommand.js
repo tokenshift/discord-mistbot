@@ -47,8 +47,8 @@ async function show ({message, message: {channel}}) {
   await init.save()
 }
 
-show.shortHelp = 'usage: `mb [show]`'
-show.fullHelp = `\`mb [show]\`
+show.shortHelp = 'usage: `mb init [show]`'
+show.fullHelp = `> **mb init [show]**
 Display the current initiative order/`
 
 module.exports = show

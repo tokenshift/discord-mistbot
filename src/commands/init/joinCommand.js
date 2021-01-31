@@ -45,9 +45,10 @@ async function join (context) {
 }
 
 join.shortHelp = 'usage: `mb init join {wits score}` or `mb init join {character name} {wits score} ...`'
-join.fullHelp = `\`mb init join {wits score}\`
+join.fullHelp = `> **mb init join {wits score}**
 Add yourself to initiative with the specified Wits score.
-\`mb init join {character name} {wits score} ...\`
+
+> **mb init join {character name} {wits score} ...**
 Add a list of character + Wits pairs to initiative.`
 
 module.exports = join
