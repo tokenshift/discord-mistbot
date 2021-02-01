@@ -2,8 +2,7 @@ FROM node:lts-buster
 
 WORKDIR /app
 COPY *.json /app/
-COPY ./src /app/src/
-RUN ls -l
-
 RUN npm install
+
+COPY ./src /app/src/
 CMD node ./src/index.js
