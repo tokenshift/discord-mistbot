@@ -29,7 +29,7 @@ async function join (context) {
     }
   } else {
     // Add list of character + wits pairs.
-    let newChars = Initiative.parseCharacterList(arguments)
+    let newChars = Initiative.parseCharacterList(arguments, 'wits')
 
     if (newChars) {
       init.characters = init.characters.concat(newChars)

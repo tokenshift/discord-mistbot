@@ -32,9 +32,11 @@ class Initiative {
   }
 
   /**
-   * Parses a list of character + wits pairs from command arguments.
+   * Parses a list of character + count (often Wits) pairs from an argument list.
+   * @param {Array} args - List of command arguments.
+   * @param {string} [attr=count] - Name to assign to the count parameter.
    */
-  static parseCharacterList (args) {
+  static parseCharacterList (args, attr = 'count') {
     let characters = []
 
     for (let i = 0; i < args.length; i += 2) {
@@ -42,14 +44,14 @@ class Initiative {
         return null
       }
 
-      let [name, wits] = args.slice(i)
-      if (!/^\d+$/.test(wits)) {
+      let [name, count] = args.slice(i)
+      if (!/^\d+$/.test(count)) {
         return null
       }
 
       characters.push({
         name: name.trim(),
-        wits: Number(wits)
+        [attr]: Number(count)
       })
     }
 

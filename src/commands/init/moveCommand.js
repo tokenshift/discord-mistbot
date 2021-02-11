@@ -11,14 +11,14 @@ async function move(context) {
     return
   }
 
-  let updates = Initiative.parseCharacterList(arguments)
+  let updates = Initiative.parseCharacterList(arguments, 'order')
 
   if (!updates) {
     await message.reply(move.shortHelp)
     return
   }
 
-  for (let {name, wits} of updates) {
+  for (let {name, order} of updates) {
     let i = init.findIndex(name)
 
     if (i < 0) {
@@ -28,7 +28,7 @@ async function move(context) {
 
     let char = init.characters[i]
 
-    wits = Math.max(0, wits - 1)
+    order = Math.max(0, order - 1)
 
     // Remove from old position
     init.characters = [
@@ -38,9 +38,9 @@ async function move(context) {
 
     // Add to new position
     init.characters = [
-      ...init.characters.slice(0, wits),
+      ...init.characters.slice(0, order),
       char,
-      ...init.characters.slice(wits)
+      ...init.characters.slice(order)
     ]
   }
 

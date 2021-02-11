@@ -41,7 +41,7 @@ async function spend(context) {
       return
     }
 
-    for (let {name, wits} of updates) {
+    for (let {name, count} of updates) {
       let char = init.find(name)
 
       if (!char) {
@@ -50,9 +50,9 @@ async function spend(context) {
       }
 
       char.remaining = char.remaining || char.pool
-      char.remaining -= wits
+      char.remaining -= count
 
-      let result = roll(wits)
+      let result = roll(count)
       await channel.send(`${message.author} ${result.text()}`)
     }
   }

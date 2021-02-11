@@ -36,7 +36,7 @@ async function pool(context) {
       return
     }
 
-    for (let {name, wits} of updates) {
+    for (let {name, count} of updates) {
       let char = init.find(name)
 
       if (!char) {
@@ -44,7 +44,7 @@ async function pool(context) {
         return
       }
 
-      char.remaining = char.pool = wits
+      char.remaining = char.pool = count
     }
   }
 

@@ -4,7 +4,7 @@ const show = require('./showCommand')
 async function start (context) {
   let {arguments, message, message: {channel}} = context
 
-  let characters = Initiative.parseCharacterList(arguments)
+  let characters = Initiative.parseCharacterList(arguments, 'wits')
   if (characters == null) {
     message.reply(start.shortHelp)
     return

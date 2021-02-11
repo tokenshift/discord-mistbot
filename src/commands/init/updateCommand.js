@@ -11,7 +11,7 @@ async function update(context) {
     return
   }
 
-  let updates = Initiative.parseCharacterList(arguments)
+  let updates = Initiative.parseCharacterList(arguments, 'wits')
 
   if (!updates) {
     await message.reply(update.shortHelp)
