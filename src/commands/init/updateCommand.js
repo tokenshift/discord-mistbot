@@ -19,10 +19,14 @@ async function update(context) {
   }
 
   for (let {name, wits} of updates) {
-    if (!init.update(name, c => c.wits = wits)) {
+    let char = init.find(name)
+
+    if (!char) {
       await message.reply(update.shortHelp)
       return
     }
+
+    char.wits = wits
   }
 
   await init.save()

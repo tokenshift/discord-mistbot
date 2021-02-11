@@ -17,10 +17,14 @@ async function remove(context) {
     return
   }
 
-  if (!init.update(arguments[0].trim(), c => c.deleted = true)) {
+  let char = init.find(arguments[0].trim())
+
+  if (!char) {
     await message.reply(remove.shortHelp)
     return
   }
+
+  char.deleted = true
 
   await init.save()
   await show(context)

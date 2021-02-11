@@ -1,3 +1,4 @@
+const roll = require('../../roll')
 const show = require('./showCommand')
 const Initiative = require("./Initiative")
 
@@ -15,13 +16,18 @@ async function spend(context) {
     // Spend from author's pool.
     if (/^\d+$/.test(arguments[0])) {
       let dice = Number(arguments[0])
-      if (!init.update(message.author.toString(), c => {
-        c.remaining = c.remaining || c.pool
-        c.remaining -= dice
-      })) {
+      let char = init.find(message.author.toString())
+
+      if (!char) {
         await message.reply(pool.shortHelp)
         return
       }
+
+      char.remaining = char.remaining || char.pool
+      char.remaining -= dice
+
+      let result = roll(dice)
+      await channel.send(`${message.author} ${result.text()}`)
     } else {
       await message.reply(spend.shortHelp)
       return
@@ -36,13 +42,18 @@ async function spend(context) {
     }
 
     for (let {name, wits} of updates) {
-      if (!init.update(name, c => {
-        c.remaining = c.remaining || c.pool
-        c.remaining -= wits
-      })) {
+      let char = init.find(name)
+
+      if (!char) {
         await message.reply(spend.shortHelp)
         return
       }
+
+      char.remaining = char.remaining || char.pool
+      char.remaining -= wits
+
+      let result = roll(wits)
+      await channel.send(`${message.author} ${result.text()}`)
     }
   }
 

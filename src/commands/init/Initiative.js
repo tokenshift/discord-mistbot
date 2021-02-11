@@ -77,6 +77,9 @@ class Initiative {
    * Save the initiative record to the database.
    */
   async save () {
+    // Remove characters marked `deleted: true`.
+    this.characters = this.characters.filter(c => !c.deleted)
+
     // Trim whitespace from all character names.
     for (let char of this.characters) {
       char.name = char.name.trim()
@@ -107,6 +110,9 @@ class Initiative {
   /**
    * Sorts characters _in-place_ by their pool size (ascending) if they've all
    * declared one, otherwise by their Wits score (descending).
+   *
+   * If the `order` attribute is set on a character, this will override the
+   * Wits/pool ordering.
    */
   sortCharacters () {
     if (this.characters.some(c => c.pool == null)) {
@@ -117,74 +123,45 @@ class Initiative {
   }
 
   /**
-   * Find and update an existing character.
+   * Find an existing character by name or position in initiative order.
    * @param {string|int} name - Character's name or position in initiative order.
-   * @param {function} updateFn - Function to be applied to the character (if found).
-   * * If you set the `order` attribute of the character to a number, it will be
-   * reordered at the next save.
-   * * If you set the `deleted` attribute of the character to `true`, it will be
-   * removed from the list of characters at the next save.
-   * @returns true if the character was found (by name or position).
+   * @returns the character that was found (or null).
    */
-  update (name, updateFn) {
-    let index = -1
+  find (name) {
+    let i = this.findIndex(name)
 
+    if (i >= 0) {
+      return this.characters[i]
+    } else {
+      return null
+    }
+  }
+
+  /**
+   * Find an existing character by name or position in initiative order.
+   * @param {string|int} name - Character's name or position in initiative order.
+   * @returns the index of the character, or -1.
+   */
+  findIndex (name) {
     if (/^\d+$/.test(name)) {
       // Pick by current order
       let i = Number(name) - 1
 
       if (i < 0 || i >= this.characters.length) {
-        return false
+        return -1
       }
 
-      index = i
+      return i
     } else {
       // Pick by name.
       for (let i = 0; i < this.characters.length; ++i) {
         if (namesMatch(this.characters[i].name, name)) {
-          index = i
-          break
+          return i
         }
       }
     }
 
-    if (index < 0) {
-      return false
-    }
-
-    let found = this.characters[index]
-
-    updateFn(found)
-
-    // Remove characters marked `deleted: true`.
-    if (found.deleted) {
-      this.characters = [
-        ...this.characters.slice(0, index),
-        ...this.characters.slice(index+1)
-      ]
-    }
-
-    // Re-order characters that have an `order` attribute applied.
-    if (found.order != null) {
-      found.order = Math.max(0, found.order - 1)
-
-      // Remove from old position
-      this.characters = [
-        ...this.characters.slice(0, index),
-        ...this.characters.slice(index+1)
-      ]
-
-      // Add to new position
-      this.characters = [
-        ...this.characters.slice(0, found.order),
-        found,
-        ...this.characters.slice(found.order)
-      ]
-
-      delete found.order
-    }
-
-    return true
+    return -1
   }
 }
 

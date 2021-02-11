@@ -15,12 +15,14 @@ async function pool(context) {
     // Update the size of your own pool.
     if (/^\d+$/.test(arguments[0])) {
       let pool = Number(arguments[0])
-      if (!init.update(message.author.toString(), c => {
-        c.remaining = c.pool = pool
-      })) {
+      let char = init.find(message.author.toString())
+
+      if (!char) {
         await message.reply(pool.shortHelp)
         return
       }
+
+      char.remaining = char.pool = pool
     } else {
       await message.reply(pool.shortHelp)
       return
@@ -35,10 +37,14 @@ async function pool(context) {
     }
 
     for (let {name, wits} of updates) {
-      if (!init.update(name, c => c.remaining = c.pool = wits)) {
+      let char = init.find(name)
+
+      if (!char) {
         await message.reply(pool.shortHelp)
         return
       }
+
+      char.remaining = char.pool = wits
     }
   }
 

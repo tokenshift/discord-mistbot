@@ -19,10 +19,29 @@ async function move(context) {
   }
 
   for (let {name, wits} of updates) {
-    if (!init.update(name, c => c.order = wits)) {
+    let i = init.findIndex(name)
+
+    if (i < 0) {
       await message.reply(move.shortHelp)
       return
     }
+
+    let char = init.characters[i]
+
+    wits = Math.max(0, wits - 1)
+
+    // Remove from old position
+    init.characters = [
+      ...init.characters.slice(0, i),
+      ...init.characters.slice(i+1)
+    ]
+
+    // Add to new position
+    init.characters = [
+      ...init.characters.slice(0, wits),
+      char,
+      ...init.characters.slice(wits)
+    ]
   }
 
   await init.save()
