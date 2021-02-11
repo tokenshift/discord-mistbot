@@ -11,6 +11,8 @@ async function pool(context) {
     return
   }
 
+  let updated = false
+
   if (arguments.length == 1) {
     // Update the size of your own pool.
     if (/^\d+$/.test(arguments[0])) {
@@ -23,6 +25,7 @@ async function pool(context) {
       }
 
       char.remaining = char.pool = pool
+      updated = true
     } else {
       await message.reply(pool.shortHelp)
       return
@@ -45,7 +48,13 @@ async function pool(context) {
       }
 
       char.remaining = char.pool = count
+      updated = true
     }
+  }
+
+  // If everyone has a pool size assigned now, re-sort by pool size.
+  if (updated && init.characters.every(c => c.pool != null)) {
+    init.sortCharacters()
   }
 
   await init.save()
