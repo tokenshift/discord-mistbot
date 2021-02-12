@@ -1,6 +1,6 @@
 {
   "name": "discord-mistbot",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Mistborn RPG helper bot.",
   "main": "src/index.js",
   "scripts": {
