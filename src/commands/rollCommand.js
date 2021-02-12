@@ -1,69 +1,50 @@
-function roll(pool) {
-  // Pool sizes above 10 or below 2 count as 10 with nudges, or 2 with a
-  // worsening outcome.
-  let effectiveCount = Math.max(2, Math.min(10, pool))
+const roll = require('../roll')
 
-  let rolls = Array(effectiveCount).fill().map(_ => Math.floor(Math.random() * 6 + 1))
-
-  return rolls.reduce((result, roll) => {
-    result.rollCounts[roll] += 1
-
-    if (roll == 6) {
-      result.nudges += 1
-    } else if (result.rollCounts[roll] >= 2) {
-      result.result = Math.max(result.result, roll)
-    }
-
-    return result
-  }, {
-    pool: pool,
-    rolls: rolls,
-    rollCounts: {
-      1: 0,
-      2: 0,
-      3: 0,
-      4: 0,
-      5: 0,
-      6: 0
-    },
-    result: 0,
-    nudges: Math.max(0, pool - effectiveCount),
-    worsen: Math.max(0, 2 - pool)
-  })
+/**
+ * See p.146 of the Mistborn core book.
+ */
+const outcomes = {
+  6: 'a _godlike_',
+  5: 'a _legendary_',
+  4: 'an _astounding_',
+  3: 'an _amazing_',
+  2: 'an _excellent_',
+  1: 'a _good_',
+  0: 'a _passable_',
+  [-1]: 'a _just shy_',
+  [-2]: 'an _unfortunate_',
+  [-3]: 'a _cringe-worthy_',
+  [-4]: 'a _horrible_',
+  [-5]: 'a _disastrous_',
+  [-6]: 'a _catastrophic_'
 }
 
-function rollText(result) {
-  let parts = [`rolled a **${result.result}**`]
-
-  if (result.nudges > 0) {
-    parts.push(` with *${result.nudges} ${result.nudges > 1 ? 'nudges' : 'nudge'}*`)
-  }
-
-  if (result.worsen > 0) {
-    parts.push(`, outcome *worsened by ${result.worsen}*`)
-  }
-
-  parts.push(` (${result.rolls.length}d6: ${
-    result.rolls.map(r => r == result.result ? `**${r}**` : r).join(', ')
-  })`)
-
-  return parts.join('')
-}
-
-function rollCommand ({reader, message, message: {channel}}) {
+async function rollCommand ({reader, message, message: {channel}}) {
   let count = reader.getInt()
+  let difficulty = reader.getInt()
+
   if (count == null || count < 0) {
-    channel.send('usage: `mb roll {pool size}`')
+    await channel.send(rollCommand.shortHelp)
+    return
+  }
+
+  if (difficulty != null && (difficulty < 1 || difficulty > 5)) {
+    await channel.send(rollCommand.shortHelp)
     return
   }
 
   let result = roll(count)
-  let text = rollText(result)
-  channel.send(`${message.author} ${text}`)
+
+  if (difficulty) {
+    let outcome = result.result - difficulty
+    await channel.send(`${message.author} rolled ${outcomes[outcome]} ${result.text()}`)
+  } else {
+    await channel.send(`${message.author} rolled ${outcomes[outcome]} ${result.text()}`)
+  }
 }
 
-rollCommand.shortHelp = 'usage: `mb roll {pool size}`'
-rollCommand.fullHelp = `> **mb roll {pool}**
+rollCommand.shortHelp = 'usage: `mb roll {pool} [difficulty (1-5)]`'
+rollCommand.fullHelp = `> **mb roll {pool} [difficulty (1-5)]**
 Roll a pool of dice, Mistborn style.`
 
 module.exports = rollCommand

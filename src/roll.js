@@ -32,7 +32,7 @@ function roll(pool) {
   })
 
   result.text = function () {
-    let parts = [`rolled a **${result.result}**`]
+    let parts = [`**${result.result}**`]
 
     if (result.nudges > 0) {
       parts.push(` with *${result.nudges} ${result.nudges > 1 ? 'nudges' : 'nudge'}*`)
