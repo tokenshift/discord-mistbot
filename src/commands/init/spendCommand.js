@@ -87,7 +87,7 @@ async function spend(context) {
   await show(context)
 }
 
-spend.shortHelp = 'usage: `mb init spend {character} {dice}`'
+spend.shortHelp = 'usage: `mb init spend [character] {dice}`'
 spend.fullHelp = `> **mb init spend [character] {dice}**
 Spend \`{count}\` dice out of your own die pool, or the identified \`[character]\`'s pool. Will automatically roll that many dice for you.`
 
