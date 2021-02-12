@@ -6,7 +6,6 @@ const subcommands = {
   show: require('./init/showCommand'),
   start: require('./init/startCommand'),
   join: require('./init/joinCommand'),
-  'join!': require('./init/joinCommand'),
   move: require('./init/moveCommand'),
   mv: require('./init/moveCommand'),
   update: require('./init/updateCommand'),
@@ -38,6 +37,12 @@ function init (context) {
   let subcommand = arguments[0]
 
   if (subcommand) {
+    let [_, subcommand2, bang] = /^\s*([a-z]+)(!)?/.exec(subcommand)
+    if (bang) {
+      context.force = true
+      subcommand = subcommand2
+    }
+
     subcommand = subcommands[subcommand]
     if (subcommand) {
       context.arguments = context.arguments.slice(1)

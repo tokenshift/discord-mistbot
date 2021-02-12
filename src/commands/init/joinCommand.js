@@ -2,7 +2,7 @@ const Initiative = require('./Initiative')
 const show = require('./showCommand')
 
 async function join (context) {
-  let {arguments, body, message, message: {author, channel}} = context
+  let {arguments, force, message, message: {author, channel}} = context
 
   let init = new Initiative(channel.id)
 
@@ -23,8 +23,7 @@ async function join (context) {
       return
     }
 
-    if (init.characters.some(c => c.name == author.toString())
-        && !/^\s*join!/.test(body)) {
+    if (init.characters.some(c => c.name == author.toString() && !force)) {
       await message.reply('cannot join initiative more than once (use `join!` to override this).')
       return
     }
