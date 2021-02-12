@@ -2,31 +2,37 @@ const Initiative = require('./Initiative')
 const show = require('./showCommand')
 
 async function join (context) {
-  let {arguments, message, message: {author, channel}} = context
+  let {arguments, body, message, message: {author, channel}} = context
 
   let init = new Initiative(channel.id)
 
   if (!await init.load()) {
-    message.reply('use `mb init start` to start tracking initiative.')
+    await message.reply('use `mb init start` to start tracking initiative.')
     return
   }
 
   if (arguments.length == 0) {
-    message.reply(join.shortHelp)
+    await message.reply(join.shortHelp)
     return
   }
 
   if (arguments.length == 1) {
     // Add message author with provided Wits score.
-    if (/^\d+$/.test(arguments[0])) {
-      init.characters.push({
-        name: author.toString(),
-        wits: Number(arguments[0])
-      })
-    } else {
+    if (!/^\d+$/.test(arguments[0])) {
       await message.reply(join.shortHelp)
       return
     }
+
+    if (init.characters.some(c => c.name == author.toString())
+        && !/^\s*join!/.test(body)) {
+      await message.reply('cannot join initiative more than once (use `join!` to override this).')
+      return
+    }
+
+    init.characters.push({
+      name: author.toString(),
+      wits: Number(arguments[0])
+    })
   } else {
     // Add list of character + wits pairs.
     let newChars = Initiative.parseCharacterList(arguments, 'wits')
