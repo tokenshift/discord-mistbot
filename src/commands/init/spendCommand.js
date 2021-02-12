@@ -23,7 +23,20 @@ async function spend(context) {
         return
       }
 
-      char.remaining = char.remaining || char.pool
+      if (char.remaining == null) {
+        char.remaining = char.pool
+      }
+
+      if (char.remaining == 0) {
+        await message.reply('you don\'t have any dice left!')
+        return
+      }
+
+      if (char.remaining < dice) {
+        await message.reply(`you only have ${char.remaining} ${char.remaining > 1 ? 'dice' : 'die'} left to spend!`)
+        return
+      }
+
       char.remaining -= dice
 
       let result = roll(dice)
@@ -49,7 +62,20 @@ async function spend(context) {
         return
       }
 
-      char.remaining = char.remaining || char.pool
+      if (char.remaining == null) {
+        char.remaining = char.pool
+      }
+
+      if (char.remaining == 0) {
+        await channel.send(`${char.name} doesn't have any dice left!`)
+        return
+      }
+
+      if (char.remaining < dice) {
+        await channel.send(`${char.name} only has ${char.remaining} ${char.remaining > 1 ? 'dice' : 'die'} left to spend!`)
+        return
+      }
+
       char.remaining -= count
 
       let result = roll(count)

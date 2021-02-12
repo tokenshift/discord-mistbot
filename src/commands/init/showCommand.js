@@ -14,7 +14,7 @@ async function show ({message, message: {channel}}) {
     let char = init.characters[i]
 
     if (char.pool) {
-      if (char.remaining && char.remaining != char.pool) {
+      if (char.remaining != null && char.remaining != char.pool) {
         lines.push(`${i+1} - ${char.name} *[Wits: ${char.wits}, Pool: ${char.remaining}/${char.pool}]*`)
       } else {
         lines.push(`${i+1} - ${char.name} *[Wits: ${char.wits}, Pool: ${char.pool}]*`)
